@@ -2,8 +2,9 @@ import { NavFooter } from '@/components/nav-footer';
 import { NavMain } from '@/components/nav-main';
 import { NavUser } from '@/components/nav-user';
 import { Sidebar, SidebarContent, SidebarFooter, SidebarHeader, SidebarMenu, SidebarMenuButton, SidebarMenuItem } from '@/components/ui/sidebar';
-import { type NavItem } from '@/types';
-import { Link } from '@inertiajs/react';
+import { type NavItem, type Usertype } from '@/types';
+import { type SharedData } from '@/types';
+import { Link, usePage } from '@inertiajs/react';
 import { BookOpen, Folder, LayoutGrid } from 'lucide-react';
 import AppLogo from './app-logo';
 
@@ -12,6 +13,21 @@ const mainNavItems: NavItem[] = [
         title: 'Dashboard',
         url: '/dashboard',
         icon: LayoutGrid,
+        usertype: ['user'],
+    },
+
+    {
+        title: 'Admin Dashboard',
+        url: '/admin/dashboard',
+        icon: LayoutGrid,
+        usertype: ['admin'],
+    },
+
+    {
+        title: 'Super Admin Dashboard',
+        url: '/superadmin/dashboard',
+        icon: LayoutGrid,
+        usertype: ['superadmin'],
     },
 ];
 
@@ -29,6 +45,15 @@ const footerNavItems: NavItem[] = [
 ];
 
 export function AppSidebar() {
+
+    const { auth } = usePage<SharedData>().props;
+
+    const usertype: Usertype = auth?.user?.usertype ?? 'user'
+
+    const filteredMainNavItems = mainNavItems.filter(
+        item => !item.usertype || item.usertype.includes(usertype)
+    )
+
     return (
         <Sidebar collapsible="icon" variant="inset">
             <SidebarHeader>
@@ -44,7 +69,7 @@ export function AppSidebar() {
             </SidebarHeader>
 
             <SidebarContent>
-                <NavMain items={mainNavItems} />
+                <NavMain items={filteredMainNavItems} />
             </SidebarContent>
 
             <SidebarFooter>

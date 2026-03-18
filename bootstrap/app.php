@@ -17,6 +17,13 @@ return Application::configure(basePath: dirname(__DIR__))
             HandleInertiaRequests::class,
             AddLinkHeadersForPreloadedAssets::class,
         ]);
+
+        $middleware->alias([
+            'superadmin'        => \App\Http\Middleware\SuperadminMiddleware::class,
+            'admin'             => \App\Http\Middleware\AdminMiddleware::class,
+            'user'              => \App\Http\Middleware\UserMiddleware::class,
+            'redirect.usertype' => \App\Http\Middleware\RedirectUsertype::class,
+        ]);
     })
     ->withExceptions(function (Exceptions $exceptions) {
         //

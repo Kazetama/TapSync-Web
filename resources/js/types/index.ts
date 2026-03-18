@@ -1,5 +1,10 @@
 import { LucideIcon } from 'lucide-react';
 
+export type Usertype =
+    | 'user'
+    | 'admin'
+    | 'superadmin'
+
 export interface Auth {
     user: User;
 }
@@ -17,6 +22,7 @@ export interface NavGroup {
 export interface NavItem {
     title: string;
     url: string;
+    usertype?: Usertype[];
     icon?: LucideIcon | null;
     isActive?: boolean;
 }
@@ -33,6 +39,7 @@ export interface User {
     name: string;
     email: string;
     avatar?: string;
+    usertype: Usertype;
     email_verified_at: string | null;
     created_at: string;
     updated_at: string;
