@@ -20,13 +20,57 @@ class RfidScanController extends Controller
 
         $uid = strtoupper($request->rfid_uid);
 
-        // Store the UID in cache for 60 seconds
+        // Store the UID in cache for 60 seconds (for polling in edit page)
         Cache::put('last_rfid_tap', $uid, 60);
+        
+        // Record that the device is online
+        Cache::put('rfid_device_last_seen', now(), 300); // 5 minutes TTL
 
         return response()->json([
             'success' => true,
             'message' => 'RFID Tap recorded successfully.',
             'rfid_uid' => $uid,
+        ]);
+    }
+
+    /**
+     * Endpoint for device to send heartbeat (stay online).
+     */
+    public function heartbeat(): JsonResponse
+    {
+        Cache::put('rfid_device_last_seen', now(), 300);
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Heartbeat received.',
+        ]);
+    }
+
+    /**
+     * Endpoint for frontend to check device status.
+     */
+    public function status(): JsonResponse
+    {
+        $lastSeen = Cache::get('rfid_device_last_seen');
+        
+        // Ensure $lastSeen is a Carbon instance if it was serialized
+        if ($lastSeen && is_string($lastSeen)) {
+            $lastSeen = \Illuminate\Support\Carbon::parse($lastSeen);
+        }
+
+        $isOnline = false;
+        $secondsAgo = null;
+
+        if ($lastSeen) {
+            $secondsAgo = now()->diffInSeconds($lastSeen);
+            $isOnline = $secondsAgo < 60;
+        }
+
+        return response()->json([
+            'success' => true,
+            'is_online' => (bool)$isOnline,
+            'seconds_ago' => $secondsAgo,
+            'last_seen' => $lastSeen ? $lastSeen->diffForHumans() : 'Never',
         ]);
     }
 

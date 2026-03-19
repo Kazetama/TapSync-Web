@@ -1,8 +1,19 @@
+import { Head, Link, useForm } from '@inertiajs/react';
+import React, { useState, useEffect } from 'react';
 import AppLayout from '@/layouts/app-layout';
 import { type BreadcrumbItem } from '@/types';
 import { type Siswa } from '@/types/siswa';
-import { Head, Link, useForm } from '@inertiajs/react';
-import React, { useState } from 'react';
+
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Textarea } from "@/components/ui/textarea";
+import { Switch } from "@/components/ui/switch";
+import { Badge } from "@/components/ui/badge";
+
+import {Save, User, BookOpen, Phone, Camera, Loader2, CreditCard } from 'lucide-react';
 
 interface EditProps {
     siswa: Siswa;
@@ -15,7 +26,7 @@ export default function Edit({ siswa }: EditProps) {
     ];
 
     const { data, setData, post, processing, errors } = useForm({
-        _method: 'PUT', 
+        _method: 'PUT',
         rfid_uid: siswa.rfid_uid || '',
         nis: siswa.nis || '',
         nama: siswa.nama || '',
@@ -26,14 +37,14 @@ export default function Edit({ siswa }: EditProps) {
         alamat: siswa.alamat || '',
         no_hp_siswa: siswa.no_hp_siswa || '',
         no_hp_ortu: siswa.no_hp_ortu || '',
-        foto: null as File | null, 
+        foto: null as File | null,
         is_active: siswa.is_active,
     });
 
     const [isScanning, setIsScanning] = useState(false);
 
-    React.useEffect(() => {
-        let interval: any;
+    useEffect(() => {
+        let interval: ReturnType<typeof setInterval> | undefined;
         if (isScanning) {
             interval = setInterval(async () => {
                 try {
@@ -43,7 +54,7 @@ export default function Edit({ siswa }: EditProps) {
                         if (dataResponse.success && dataResponse.rfid_uid) {
                             setData('rfid_uid', dataResponse.rfid_uid);
                             setIsScanning(false);
-                            clearInterval(interval);
+                            if (interval) clearInterval(interval);
                         }
                     }
                 } catch (error) {
@@ -51,14 +62,10 @@ export default function Edit({ siswa }: EditProps) {
                 }
             }, 2000);
         }
-        return () => clearInterval(interval);
-    }, [isScanning]);
-
-    const handleScanClick = () => {
-        setIsScanning(true);
-        // Also clear any previous scan to avoid old data
-        // fetch('/api/rfid/clear', { method: 'POST' }); // Optional
-    };
+        return () => {
+            if (interval) clearInterval(interval);
+        };
+    }, [isScanning, setData]);
 
     const submit = (e: React.FormEvent) => {
         e.preventDefault();
@@ -69,146 +76,188 @@ export default function Edit({ siswa }: EditProps) {
         <AppLayout breadcrumbs={breadcrumbs}>
             <Head title={`Edit Siswa - ${siswa.nama}`} />
 
-            <div className="mx-auto w-full max-w-5xl p-4">
-                <form onSubmit={submit} className="flex flex-col gap-6">
-                    <div className="rounded-xl border border-blue-200 bg-blue-50/50 p-6 dark:border-blue-900/50 dark:bg-blue-900/10">
-                        <div className="flex flex-col justify-between gap-4 md:flex-row md:items-center">
-                            <div>
-                                <h2 className="text-lg font-bold text-blue-900 dark:text-blue-100">Kredensial Kartu RFID</h2>
-                                <p className="text-sm text-blue-700 dark:text-blue-300">Hubungkan kartu fisik mahasiswa ke sistem TapSync.</p>
-                            </div>
-                            <button
-                                type="button"
-                                onClick={handleScanClick}
-                                className={`rounded-md px-4 py-2 text-sm font-semibold text-white transition-all ${isScanning ? 'animate-pulse bg-blue-400' : 'bg-blue-600 hover:bg-blue-700'}`}
-                            >
-                                {isScanning ? 'Menunggu Tap Kartu...' : 'Scan Kartu Sekarang'}
-                            </button>
-                        </div>
-                        <div className="mt-4">
-                            <input
-                                id="rfid_uid"
-                                type="text"
-                                placeholder="Contoh: 046E5A22 (Bisa diketik manual atau via alat)"
-                                value={data.rfid_uid}
-                                onChange={(e) => {
-                                    setData('rfid_uid', e.target.value.toUpperCase());
-                                    if(e.target.value) setIsScanning(false);
-                                }}
-                                className="w-full rounded-md border border-neutral-300 bg-white px-3 py-2 font-mono text-lg uppercase shadow-sm focus:border-blue-500 focus:ring-blue-500 dark:border-neutral-700 dark:bg-neutral-900 dark:text-white"
-                            />
-                            {errors.rfid_uid && <p className="mt-1 text-sm text-red-600">{errors.rfid_uid}</p>}
-                        </div>
+            <div className="p-6 max-w-5xl mx-auto space-y-6">
+                
+                <div className="flex items-center justify-between">
+                    <div>
+                        <h1 className="text-2xl font-bold tracking-tight">Edit Informasi Siswa</h1>
+                        <p className="text-sm text-muted-foreground">Pastikan data sesuai dengan dokumen resmi sekolah.</p>
                     </div>
+                    <Badge variant={data.is_active ? "default" : "secondary"}>
+                        {data.is_active ? "Akun Aktif" : "Akun Nonaktif"}
+                    </Badge>
+                </div>
 
-                    <div className="grid gap-6 md:grid-cols-2">
-                        <div className="rounded-xl border border-neutral-200 bg-white p-6 shadow-sm dark:border-neutral-800 dark:bg-neutral-900">
-                            <h2 className="mb-4 text-lg font-bold text-neutral-900 dark:text-white">Data Akademik Utama</h2>
-                            <div className="flex flex-col gap-4">
-                                <div>
-                                    <label className="mb-1 block text-sm font-medium text-neutral-700 dark:text-neutral-300">Nomor Induk Siswa (NIS/NIM)</label>
-                                    <input type="text" value={data.nis} onChange={e => setData('nis', e.target.value)} className="w-full rounded-md border border-neutral-300 px-3 py-2 dark:border-neutral-700 dark:bg-neutral-950 dark:text-white" />
-                                    {errors.nis && <p className="text-sm text-red-600">{errors.nis}</p>}
+                <form onSubmit={submit} className="space-y-6">
+                    <Card className="border-blue-200 dark:border-blue-900 bg-blue-50/30 dark:bg-blue-900/10 shadow-none">
+                        <CardHeader className="pb-3">
+                            <CardTitle className="text-blue-900 dark:text-blue-100 flex items-center gap-2 text-lg">
+                                <CreditCard className="h-5 w-5" /> Kredensial Kartu RFID
+                            </CardTitle>
+                            <CardDescription className="text-blue-700/80 dark:text-blue-300/80">
+                                Klik tombol scan lalu tap kartu fisik pada alat untuk input otomatis.
+                            </CardDescription>
+                        </CardHeader>
+                        <CardContent className="space-y-4">
+                            <div className="flex flex-col md:flex-row gap-4">
+                                <div className="relative flex-1">
+                                    <Input
+                                        value={data.rfid_uid}
+                                        onChange={e => setData('rfid_uid', e.target.value.toUpperCase())}
+                                        placeholder="UID Kartu (Otomatis/Manual)"
+                                        className="font-mono text-lg h-12 uppercase bg-white dark:bg-neutral-950 border-blue-200"
+                                    />
+                                    {isScanning && (
+                                        <div className="absolute right-3 top-1/2 -translate-y-1/2">
+                                            <Loader2 className="h-5 w-5 animate-spin text-blue-600" />
+                                        </div>
+                                    )}
                                 </div>
-                                <div>
-                                    <label className="mb-1 block text-sm font-medium text-neutral-700 dark:text-neutral-300">Nama Lengkap</label>
-                                    <input type="text" value={data.nama} onChange={e => setData('nama', e.target.value)} className="w-full rounded-md border border-neutral-300 px-3 py-2 dark:border-neutral-700 dark:bg-neutral-950 dark:text-white" />
-                                    {errors.nama && <p className="text-sm text-red-600">{errors.nama}</p>}
-                                </div>
-                                <div className="grid grid-cols-2 gap-4">
-                                    <div>
-                                        <label className="mb-1 block text-sm font-medium text-neutral-700 dark:text-neutral-300">Jenis Kelamin</label>
-                                        <select value={data.jenis_kelamin} onChange={e => setData('jenis_kelamin', e.target.value)} className="w-full rounded-md border border-neutral-300 px-3 py-2 dark:border-neutral-700 dark:bg-neutral-950 dark:text-white">
-                                            <option value="L">Laki-laki</option>
-                                            <option value="P">Perempuan</option>
-                                        </select>
-                                    </div>
-                                    <div>
-                                        <label className="mb-1 block text-sm font-medium text-neutral-700 dark:text-neutral-300">Angkatan</label>
-                                        <input type="text" value={data.angkatan} onChange={e => setData('angkatan', e.target.value)} className="w-full rounded-md border border-neutral-300 px-3 py-2 dark:border-neutral-700 dark:bg-neutral-950 dark:text-white" />
-                                    </div>
-                                </div>
-                                <div className="grid grid-cols-2 gap-4">
-                                    <div>
-                                        <label className="mb-1 block text-sm font-medium text-neutral-700 dark:text-neutral-300">Kelas</label>
-                                        <input type="text" value={data.kelas} onChange={e => setData('kelas', e.target.value)} className="w-full rounded-md border border-neutral-300 px-3 py-2 dark:border-neutral-700 dark:bg-neutral-950 dark:text-white" />
-                                    </div>
-                                    <div>
-                                        <label className="mb-1 block text-sm font-medium text-neutral-700 dark:text-neutral-300">Jurusan/Prodi</label>
-                                        <input type="text" value={data.jurusan} onChange={e => setData('jurusan', e.target.value)} className="w-full rounded-md border border-neutral-300 px-3 py-2 dark:border-neutral-700 dark:bg-neutral-950 dark:text-white" />
-                                    </div>
-                                </div>
+                                <Button 
+                                    type="button" 
+                                    onClick={() => setIsScanning(true)}
+                                    disabled={isScanning}
+                                    className={`h-12 px-6 ${isScanning ? 'bg-blue-400' : 'bg-blue-600 hover:bg-blue-700'}`}
+                                >
+                                    {isScanning ? 'Menunggu Kartu...' : 'Scan Kartu'}
+                                </Button>
                             </div>
-                        </div>
+                            {errors.rfid_uid && <p className="text-sm text-destructive">{errors.rfid_uid}</p>}
+                        </CardContent>
+                    </Card>
 
-                        <div className="flex flex-col gap-6">
-                            <div className="rounded-xl border border-neutral-200 bg-white p-6 shadow-sm dark:border-neutral-800 dark:bg-neutral-900">
-                                <h2 className="mb-4 text-lg font-bold text-neutral-900 dark:text-white">Kontak & Alamat</h2>
-                                <div className="flex flex-col gap-4">
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                        <div className="md:col-span-2 space-y-6">
+                            <Card>
+                                <CardHeader>
+                                    <CardTitle className="text-base flex items-center gap-2">
+                                        <BookOpen className="h-4 w-4" /> Data Akademik
+                                    </CardTitle>
+                                </CardHeader>
+                                <CardContent className="grid gap-4">
                                     <div className="grid grid-cols-2 gap-4">
-                                        <div>
-                                            <label className="mb-1 block text-sm font-medium text-neutral-700 dark:text-neutral-300">No. HP Siswa</label>
-                                            <input type="text" value={data.no_hp_siswa} onChange={e => setData('no_hp_siswa', e.target.value)} className="w-full rounded-md border border-neutral-300 px-3 py-2 dark:border-neutral-700 dark:bg-neutral-950 dark:text-white" />
+                                        <div className="space-y-2">
+                                            <Label htmlFor="nis">Nomor Induk Siswa (NIS)</Label>
+                                            <Input id="nis" value={data.nis} onChange={e => setData('nis', e.target.value)} />
+                                            {errors.nis && <p className="text-xs text-destructive">{errors.nis}</p>}
                                         </div>
-                                        <div>
-                                            <label className="mb-1 block text-sm font-medium text-neutral-700 dark:text-neutral-300">No. HP Ortu</label>
-                                            <input type="text" value={data.no_hp_ortu} onChange={e => setData('no_hp_ortu', e.target.value)} className="w-full rounded-md border border-neutral-300 px-3 py-2 dark:border-neutral-700 dark:bg-neutral-950 dark:text-white" />
+                                        <div className="space-y-2">
+                                            <Label htmlFor="angkatan">Angkatan</Label>
+                                            <Input id="angkatan" value={data.angkatan} onChange={e => setData('angkatan', e.target.value)} />
                                         </div>
                                     </div>
-                                    <div>
-                                        <label className="mb-1 block text-sm font-medium text-neutral-700 dark:text-neutral-300">Alamat Lengkap</label>
-                                        <textarea rows={3} value={data.alamat} onChange={e => setData('alamat', e.target.value)} className="w-full rounded-md border border-neutral-300 px-3 py-2 dark:border-neutral-700 dark:bg-neutral-950 dark:text-white" />
+                                    <div className="space-y-2">
+                                        <Label htmlFor="nama">Nama Lengkap</Label>
+                                        <Input id="nama" value={data.nama} onChange={e => setData('nama', e.target.value)} />
+                                        {errors.nama && <p className="text-xs text-destructive">{errors.nama}</p>}
                                     </div>
-                                </div>
-                            </div>
+                                    <div className="grid grid-cols-2 gap-4">
+                                        <div className="space-y-2">
+                                            <Label>Jenis Kelamin</Label>
+                                            <Select value={data.jenis_kelamin} onValueChange={val => setData('jenis_kelamin', val)}>
+                                                <SelectTrigger>
+                                                    <SelectValue />
+                                                </SelectTrigger>
+                                                <SelectContent>
+                                                    <SelectItem value="L">Laki-laki</SelectItem>
+                                                    <SelectItem value="P">Perempuan</SelectItem>
+                                                </SelectContent>
+                                            </Select>
+                                        </div>
+                                        <div className="space-y-2">
+                                            <Label htmlFor="kelas">Kelas</Label>
+                                            <Input id="kelas" value={data.kelas} onChange={e => setData('kelas', e.target.value)} />
+                                        </div>
+                                    </div>
+                                    <div className="space-y-2">
+                                        <Label htmlFor="jurusan">Jurusan / Program Studi</Label>
+                                        <Input id="jurusan" value={data.jurusan} onChange={e => setData('jurusan', e.target.value)} />
+                                    </div>
+                                </CardContent>
+                            </Card>
 
-                            <div className="rounded-xl border border-neutral-200 bg-white p-6 shadow-sm dark:border-neutral-800 dark:bg-neutral-900">
-                                <div className="flex flex-col gap-5">
-                                    <div>
-                                        <label className="mb-2 block text-sm font-medium text-neutral-700 dark:text-neutral-300">Update Pas Foto</label>
-                                        <div className="flex items-center gap-4">
-                                            {siswa.foto && (
-                                                <img src={`/storage/${siswa.foto}`} alt="Profile" className="h-16 w-16 rounded-md object-cover shadow-sm" />
+                            <Card>
+                                <CardHeader>
+                                    <CardTitle className="text-base flex items-center gap-2">
+                                        <Phone className="h-4 w-4" /> Kontak & Alamat
+                                    </CardTitle>
+                                </CardHeader>
+                                <CardContent className="grid gap-4">
+                                    <div className="grid grid-cols-2 gap-4">
+                                        <div className="space-y-2">
+                                            <Label htmlFor="hp_siswa">No. HP Siswa</Label>
+                                            <Input id="hp_siswa" value={data.no_hp_siswa} onChange={e => setData('no_hp_siswa', e.target.value)} />
+                                        </div>
+                                        <div className="space-y-2">
+                                            <Label htmlFor="hp_ortu">No. HP Orang Tua</Label>
+                                            <Input id="hp_ortu" value={data.no_hp_ortu} onChange={e => setData('no_hp_ortu', e.target.value)} />
+                                        </div>
+                                    </div>
+                                    <div className="space-y-2">
+                                        <Label htmlFor="alamat">Alamat Tinggal</Label>
+                                        <Textarea id="alamat" rows={3} value={data.alamat} onChange={e => setData('alamat', e.target.value)} />
+                                    </div>
+                                </CardContent>
+                            </Card>
+                        </div>
+
+                        <div className="space-y-6">
+                            <Card>
+                                <CardHeader>
+                                    <CardTitle className="text-base flex items-center gap-2">
+                                        <Camera className="h-4 w-4" /> Pas Foto
+                                    </CardTitle>
+                                </CardHeader>
+                                <CardContent className="flex flex-col items-center gap-4">
+                                    <div className="relative group">
+                                        <div className="h-32 w-32 rounded-xl border-2 border-dashed border-muted-foreground/20 overflow-hidden bg-muted flex items-center justify-center">
+                                            {siswa.foto ? (
+                                                <img src={`/storage/${siswa.foto}`} className="h-full w-full object-cover" alt="Profile" />
+                                            ) : (
+                                                <User className="h-12 w-12 text-muted-foreground/40" />
                                             )}
-                                            <input 
-                                                type="file" 
-                                                accept="image/*"
-                                                onChange={e => setData('foto', e.target.files ? e.target.files[0] : null)} 
-                                                className="block w-full text-sm text-neutral-500 file:mr-4 file:rounded-full file:border-0 file:bg-blue-50 file:px-4 file:py-2 file:text-sm file:font-semibold file:text-blue-700 hover:file:bg-blue-100 dark:file:bg-neutral-800 dark:file:text-neutral-300" 
-                                            />
                                         </div>
-                                        {errors.foto && <p className="mt-1 text-sm text-red-600">{errors.foto}</p>}
+                                        <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center rounded-xl pointer-events-none">
+                                            <Camera className="text-white h-6 w-6" />
+                                        </div>
                                     </div>
+                                    <Input 
+                                        type="file" 
+                                        className="cursor-pointer" 
+                                        onChange={e => setData('foto', e.target.files ? e.target.files[0] : null)} 
+                                    />
+                                    <p className="text-[10px] text-muted-foreground text-center">Format: JPG, PNG. Maks: 2MB</p>
+                                </CardContent>
+                            </Card>
 
-                                    <div className="flex items-center gap-3 rounded-lg border border-neutral-200 p-3 dark:border-neutral-700">
-                                        <input 
-                                            type="checkbox" 
-                                            id="is_active" 
-                                            checked={data.is_active} 
-                                            onChange={e => setData('is_active', e.target.checked)} 
-                                            className="h-5 w-5 rounded border-neutral-300 text-blue-600 focus:ring-blue-500 dark:border-neutral-600 dark:bg-neutral-900"
-                                        />
-                                        <div>
-                                            <label htmlFor="is_active" className="font-medium text-neutral-900 dark:text-white">Status Akun Aktif</label>
-                                            <p className="text-xs text-neutral-500 dark:text-neutral-400">Jika dimatikan, kartu RFID akan ditolak oleh alat.</p>
+                            <Card>
+                                <CardHeader>
+                                    <CardTitle className="text-base">Pengaturan Akun</CardTitle>
+                                </CardHeader>
+                                <CardContent className="space-y-4">
+                                    <div className="flex items-center justify-between rounded-lg border p-3">
+                                        <div className="space-y-0.5">
+                                            <Label>Status Aktif</Label>
+                                            <p className="text-[11px] text-muted-foreground">Izinkan akses RFID</p>
                                         </div>
+                                        <Switch 
+                                            checked={data.is_active} 
+                                            onCheckedChange={val => setData('is_active', val)} 
+                                        />
                                     </div>
-                                </div>
-                            </div>
+                                </CardContent>
+                            </Card>
                         </div>
                     </div>
 
-                    <div className="flex items-center justify-end gap-4 rounded-xl border border-neutral-200 bg-white p-4 shadow-sm dark:border-neutral-800 dark:bg-neutral-900">
-                        <Link href="/admin/siswa" className="text-sm font-medium text-neutral-600 hover:text-neutral-900 dark:text-neutral-400 dark:hover:text-white">
-                            Batal
-                        </Link>
-                        <button 
-                            type="submit" 
-                            disabled={processing}
-                            className="rounded-md bg-neutral-900 px-6 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-neutral-800 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-neutral-900 disabled:opacity-50 dark:bg-neutral-100 dark:text-neutral-900 dark:hover:bg-neutral-200"
-                        >
-                            {processing ? 'Menyimpan...' : 'Simpan Perubahan Data'}
-                        </button>
+                    <div className="flex items-center justify-end gap-3 pt-4 border-t">
+                        <Button variant="ghost" asChild>
+                            <Link href="/admin/siswa">Batal</Link>
+                        </Button>
+                        <Button type="submit" disabled={processing} className="min-w-[150px] bg-neutral-950 dark:bg-white dark:text-black">
+                            {processing ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Save className="mr-2 h-4 w-4" />}
+                            Simpan Perubahan
+                        </Button>
                     </div>
 
                 </form>

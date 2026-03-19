@@ -39,13 +39,19 @@ class Siswa extends Model
             });
         })
         ->when($filters['kelas'] ?? null, function ($query, $kelas) {
-            $query->where('kelas', $kelas);
+            if ($kelas !== 'all' && $kelas !== '') {
+                $query->where('kelas', $kelas);
+            }
         })
         ->when($filters['jurusan'] ?? null, function ($query, $jurusan) {
-            $query->where('jurusan', $jurusan);
+            if ($jurusan !== 'all' && $jurusan !== '') {
+                $query->where('jurusan', $jurusan);
+            }
         })
         ->when($filters['angkatan'] ?? null, function ($query, $angkatan) {
-            $query->where('angkatan', $angkatan);
+            if ($angkatan !== 'all' && $angkatan !== '') {
+                $query->where('angkatan', $angkatan);
+            }
         });
     }
 

@@ -83,6 +83,8 @@ class SiswaControllers extends Controller
                 Storage::disk('public')->delete($siswa->foto);
             }
             $validated['foto'] = $request->file('foto')->store('fotos', 'public');
+        } else {
+            unset($validated['foto']);
         }
 
         $siswa->update($validated);
