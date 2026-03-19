@@ -32,9 +32,32 @@ export default function Edit({ siswa }: EditProps) {
 
     const [isScanning, setIsScanning] = useState(false);
 
+    React.useEffect(() => {
+        let interval: any;
+        if (isScanning) {
+            interval = setInterval(async () => {
+                try {
+                    const response = await fetch('/api/rfid/latest');
+                    if (response.ok) {
+                        const dataResponse = await response.json();
+                        if (dataResponse.success && dataResponse.rfid_uid) {
+                            setData('rfid_uid', dataResponse.rfid_uid);
+                            setIsScanning(false);
+                            clearInterval(interval);
+                        }
+                    }
+                } catch (error) {
+                    console.error('Error polling RFID:', error);
+                }
+            }, 2000);
+        }
+        return () => clearInterval(interval);
+    }, [isScanning]);
+
     const handleScanClick = () => {
         setIsScanning(true);
-        document.getElementById('rfid_uid')?.focus();
+        // Also clear any previous scan to avoid old data
+        // fetch('/api/rfid/clear', { method: 'POST' }); // Optional
     };
 
     const submit = (e: React.FormEvent) => {

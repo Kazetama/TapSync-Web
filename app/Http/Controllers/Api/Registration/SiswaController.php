@@ -9,6 +9,7 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Support\Facades\Cache;
 use Exception;
 
 class SiswaController extends Controller
@@ -26,6 +27,9 @@ class SiswaController extends Controller
                 'errors'  => $validator->errors()
             ], 422);
         }
+
+        // Store in cache for polling (in case student edit is open)
+        Cache::put('last_rfid_tap', $request->rfid_uid, 60);
 
         DB::beginTransaction();
         try {

@@ -3,6 +3,7 @@
 use Illuminate\Support\Facades\Route;
 
 use App\Http\Controllers\Api\Registration\SiswaController;
+use App\Http\Controllers\Api\RfidScanController;
 
 Route::get('/test', function() {
     return response()->json([
@@ -11,3 +12,7 @@ Route::get('/test', function() {
 });
 
 Route::post('/siswas', [SiswaController::class, 'store']);
+
+// RFID Scanning Routes
+Route::post('/rfid/scan', [RfidScanController::class, 'scan']);
+Route::get('/rfid/latest', [RfidScanController::class, 'latest']);
