@@ -14,6 +14,9 @@ class AttendanceController extends Controller
 {
     public function scan(Request $request)
     {
+        // Catat aktivitas perangkat agar status di Dashboard tetap "Live"
+        Cache::put('rfid_device_last_seen', now(), 300);
+
         $uid = $request->input('uid');
 
         if (!$uid) {

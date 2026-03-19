@@ -63,7 +63,8 @@ class RfidScanController extends Controller
 
         if ($lastSeen) {
             $secondsAgo = now()->diffInSeconds($lastSeen);
-            $isOnline = $secondsAgo < 60;
+            // Anggap offline jika tidak ada detak jantung selama 45 detik (2x interval heartbeat + buffer)
+            $isOnline = $secondsAgo < 45;
         }
 
         return response()->json([
