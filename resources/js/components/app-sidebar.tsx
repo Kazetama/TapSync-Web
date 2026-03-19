@@ -5,7 +5,7 @@ import { Sidebar, SidebarContent, SidebarFooter, SidebarHeader, SidebarMenu, Sid
 import { type NavItem, type Usertype } from '@/types';
 import { type SharedData } from '@/types';
 import { Link, usePage } from '@inertiajs/react';
-import { BookOpen, Folder, LayoutGrid, Users } from 'lucide-react';
+import { BookOpen, Clock, Folder, LayoutGrid, Users } from 'lucide-react';
 import AppLogo from './app-logo';
 
 const mainNavItems: NavItem[] = [
@@ -27,6 +27,20 @@ const mainNavItems: NavItem[] = [
         title: 'Manajemen Siswa',
         url: '/admin/siswa',
         icon: Users,
+        usertype: ['admin'],
+    },
+
+    {
+        title: 'Data Absensi',
+        url: '/admin/absensi',
+        icon: BookOpen,
+        usertype: ['admin'],
+    },
+    
+    {
+        title: 'Pengaturan Absensi',
+        url: '/admin/absensi/settings',
+        icon: Clock,
         usertype: ['admin'],
     },
     

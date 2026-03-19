@@ -4,6 +4,7 @@ use Illuminate\Support\Facades\Route;
 
 use App\Http\Controllers\Api\Registration\SiswaController;
 use App\Http\Controllers\Api\RfidScanController;
+use App\Http\Controllers\Api\AttendanceController;
 
 Route::get('/test', function () {
     return response()->json([
@@ -18,3 +19,7 @@ Route::post('/rfid/scan', [RfidScanController::class, 'scan']);
 Route::get('/rfid/latest', [RfidScanController::class, 'latest']);
 Route::get('/rfid/status', [RfidScanController::class, 'status']);
 Route::post('/rfid/heartbeat', [RfidScanController::class, 'heartbeat']);
+
+// Attendance System
+Route::post('/attendance/scan', [AttendanceController::class, 'scan']);
+Route::get('/attendance/latest', [App\Http\Controllers\Api\AttendanceController::class, 'latest']);

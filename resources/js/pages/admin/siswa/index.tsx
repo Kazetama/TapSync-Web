@@ -12,7 +12,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
 
-import { Search, FileDown, UserPlus, FilterX, Edit2 } from 'lucide-react';
+import { Search, FileDown, FilterX, Edit2 } from 'lucide-react';
 
 const breadcrumbs: BreadcrumbItem[] = [
     { title: 'Manajemen Siswa', href: '/admin/siswa' },

@@ -19,4 +19,9 @@ Route::middleware(['auth', 'redirect.usertype', 'admin'])
 
         Route::get('siswa/export', [SiswaControllers::class, 'export'])->name('siswa.export');
         Route::resource('siswa', SiswaControllers::class)->names('siswa');
+
+        // Attendance
+        Route::get('absensi', [\App\Http\Controllers\Admin\Attendance\AttendanceControllers::class, 'index'])->name('absensi.index');
+        Route::get('absensi/settings', [\App\Http\Controllers\Admin\Attendance\AttendanceControllers::class, 'settings'])->name('absensi.settings');
+        Route::post('absensi/settings', [\App\Http\Controllers\Admin\Attendance\AttendanceControllers::class, 'updateSettings'])->name('absensi.settings.update');
     });
