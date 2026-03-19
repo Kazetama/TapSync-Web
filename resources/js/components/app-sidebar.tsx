@@ -22,6 +22,13 @@ const mainNavItems: NavItem[] = [
         icon: LayoutGrid,
         usertype: ['admin'],
     },
+
+    {
+        title: 'Manajemen Siswa',
+        url: '/admin/siswa',
+        icon: Users,
+        usertype: ['admin'],
+    },
     
     {
         title: 'Super Admin Dashboard',
