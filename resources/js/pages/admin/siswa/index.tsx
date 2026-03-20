@@ -146,14 +146,14 @@ export default function Index({ siswas, filters, options }: IndexProps) {
                                     <TableRow key={siswa.id} className="hover:bg-muted/30 transition-colors">
                                         <TableCell className="flex justify-center">
                                             <Avatar className="h-10 w-10 border">
-                                                <AvatarImage src={`/storage/${siswa.foto}`} alt={siswa.nama} />
+                                                <AvatarImage src={`/storage/${siswa.foto}`} alt={siswa.nama || 'Siswa'} />
                                                 <AvatarFallback className="bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400">
-                                                    {siswa.nama.substring(0, 2).toUpperCase()}
+                                                    {(siswa.nama || '??').substring(0, 2).toUpperCase()}
                                                 </AvatarFallback>
                                             </Avatar>
                                         </TableCell>
-                                        <TableCell className="font-mono text-sm">{siswa.nis}</TableCell>
-                                        <TableCell className="font-medium">{siswa.nama}</TableCell>
+                                        <TableCell className="font-mono text-sm">{siswa.nis || '-'}</TableCell>
+                                        <TableCell className="font-medium">{siswa.nama || <span className="text-muted-foreground italic text-xs">Tanpa Nama</span>}</TableCell>
                                         <TableCell>
                                             <div className="text-sm">Kelas {siswa.kelas}</div>
                                             <div className="text-xs text-muted-foreground uppercase">{siswa.jurusan}</div>

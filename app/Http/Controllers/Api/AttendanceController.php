@@ -23,6 +23,11 @@ class AttendanceController extends Controller
             return response()->json(['success' => false, 'message' => 'UID required'], 400);
         }
 
+        $uid = strtoupper($uid);
+
+        // Update scan cache so the registration UI can catch it even if student is not found
+        Cache::put('last_rfid_tap', $uid, 60);
+
         $siswa = Siswa::where('rfid_uid', $uid)->first();
 
         if (!$siswa) {
